@@ -70,11 +70,8 @@ function galleryItem(data) {
         comments,
         downloads,
       }) => {
-        return ` 
-		  <div class="photo-card">
-		  <a class="gallery-item" href='${largeImageURL}'>
-		  <img src="${webformatURL}" alt="${tags}" loading="lazy" width="320" height="214"/></a>
- <div class="info">
+        return `<a class="gallery-item" href="${largeImageURL}"><div class="photo-card">
+		  <img src="${webformatURL}" alt="${tags}" loading="lazy" width="320" height="214"/><div class="info">
 	<p class="info-item">
 	  <b>Likes:</b> ${likes}
 	</p>
@@ -88,7 +85,7 @@ function galleryItem(data) {
 	  <b>Downloads:</b> ${downloads}
 	</p>
  </div>
-</div>`;
+</div></a>`;
       }
     )
     .join('');
