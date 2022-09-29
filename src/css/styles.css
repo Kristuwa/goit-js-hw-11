@@ -65,5 +65,7 @@ img {
 }
 
 .gallery-item {
-  display: block;
+  font-family: inherit;
+  color: inherit;
+  text-decoration: none;
 }
