@@ -17,11 +17,6 @@ const refs = {
 refs.form.addEventListener('submit', onSearch);
 refs.button.addEventListener('click', onLoadMoreImg);
 
-let lightbox = new SimpleLightbox('.gallery a', {
-  captionsData: 'alt',
-  captionDelay: 250,
-});
-
 function onSearch(e) {
   e.preventDefault();
   clearGallery();
@@ -45,7 +40,7 @@ function onSearch(e) {
 
 function onLoadMoreImg() {
   newServiceApi.fetchAnimals().then(({ hits, totalHits }) => {
-    lightbox.refresh();
+    //  lightbox.refresh();
     const maxPage = totalHits / hits.length;
 
     if (maxPage <= newServiceApi.page) {
@@ -75,9 +70,9 @@ function galleryItem(data) {
         comments,
         downloads,
       }) => {
-        return `<div class="photo-card">
-		  <a class="gallery-item" href='${largeImageURL}'>
- <img src="${webformatURL}" alt="${tags}" loading="lazy" width="320" height="214"/></a>
+        return `
+		  <div class="photo-card">
+		  <a class="gallery-item" href='${largeImageURL}'><img src="${webformatURL}" alt="${tags}" loading="lazy" width="320" height="214"/></a>
  <div class="info">
 	<p class="info-item">
 	  <b>Likes:</b> ${likes}
@@ -103,6 +98,7 @@ function clearGallery() {
   refs.galleryList.innerHTML = '';
 }
 
-{
-  /* <a class="gallery-item" href='${largeImageURL}> */
-}
+let lightbox = new SimpleLightbox('.gallery a', {
+  captionsData: 'alt',
+  captionDelay: 250,
+});
