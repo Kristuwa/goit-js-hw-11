@@ -40,7 +40,7 @@ function onSearch(e) {
 
 function onLoadMoreImg() {
   newServiceApi.fetchAnimals().then(({ hits, totalHits }) => {
-    //  lightbox.refresh();
+    lightbox.refresh();
     const maxPage = totalHits / hits.length;
 
     if (maxPage <= newServiceApi.page) {
@@ -70,9 +70,10 @@ function galleryItem(data) {
         comments,
         downloads,
       }) => {
-        return `
+        return ` 
 		  <div class="photo-card">
-		  <a class="gallery-item" href='${largeImageURL}'><img src="${webformatURL}" alt="${tags}" loading="lazy" width="320" height="214"/></a>
+		  <a class="gallery-item" href='${largeImageURL}'>
+		  <img src="${webformatURL}" alt="${tags}" loading="lazy" width="320" height="214"/></a>
  <div class="info">
 	<p class="info-item">
 	  <b>Likes:</b> ${likes}
