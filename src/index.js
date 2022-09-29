@@ -1,13 +1,16 @@
 import './css/styles.css';
-// import { fetchCountries } from './fetchCountries';
+import { ServiceApi } from './news-api';
 import Notiflix from 'notiflix';
-import axios from 'axios';
+
 
 const DEBOUNCE_DELAY = 300;
+
+const newServiceApi = new ServiceApi();
 
 const refs = {
   form: document.querySelector('.search-form'),
   button: document.querySelector('.load_more'),
+  galleryList: document.querySelector('.gallery'),
 };
 
 refs.form.addEventListener('submit', onSearch);
@@ -15,12 +18,39 @@ refs.form.addEventListener('submit', onSearch);
 function onSearch(e) {
   e.preventDefault();
 
-  const searchQuery = e.currentTarget.elements.searchQuery.value;
+  newServiceApi.query = e.currentTarget.elements.searchQuery.value;
+newServiceApi.resetPage();
+  newServiceApi.fetchAnimals();
+}
 
-  const key = '30242343-f6d10ec55d07081d5dcce6a52';
+function animalsMarkup(data) {
+refs.galleryList.insertAdjacentHTML('beforeend', galleryItem(data));
+}
 
-  const url = `https://pixabay.com/api/?key=${key}&q=${searchQuery}&image_type=photo&orientation=horizontal&safesearch=true`;
-  return fetch(url)
-    .then(response => response.json())
-    .then(console.log);
+function galleryItem({
+  webformatURL,
+  largeImageURL,
+  tags,
+  likes,
+  views,
+  comments,
+  downloads,
+}) {
+  return `<div class="photo-card">
+			<img src="${webformatURL}" alt="${tags}" loading="lazy" />
+			<div class="info">
+			  <p class="info-item">
+				 <b>Likes: ${likes}</b>
+			  </p>
+			  <p class="info-item">
+				 <b>Views: ${views}</b>
+			  </p>
+			  <p class="info-item">
+				 <b>Comments: ${comments}</b>
+			  </p>
+			  <p class="info-item">
+				 <b>Downloads: ${downloads}</b>
+			  </p>
+			</div>
+		 </div>`;
 }
