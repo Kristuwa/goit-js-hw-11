@@ -25,7 +25,45 @@ ul {
 }
 
 img {
-  height: auto;
   max-width: 100%;
+  display: block;
+}
+
+.gallery {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.photo-card {
+  width: 320px;
+  box-shadow: 8px 8px 8px rgba(48, 47, 47, 0.1);
+}
+
+.info {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+}
+
+.info-item {
+  font-size: 16px;
+  text-align: center;
+}
+
+.info-item + .info-item {
+  margin-left: 5px;
+}
+
+.load-more.is-hidden {
+  display: none;
+}
+
+.load-more {
+  display: block;
+}
+
+.gallery-item {
   display: block;
 }
