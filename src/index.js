@@ -1,10 +1,10 @@
 import './css/styles.css';
-import { ServiceApi } from './news-api';
-import Notiflix from 'notiflix';
 // Описан в документации
 import SimpleLightbox from 'simplelightbox';
 // Дополнительный импорт стилей
 import 'simplelightbox/dist/simple-lightbox.min.css';
+import { ServiceApi } from './news-api';
+import Notiflix from 'notiflix';
 
 const newServiceApi = new ServiceApi();
 
@@ -21,8 +21,6 @@ function onSearch(e) {
   e.preventDefault();
   clearGallery();
 
-  refs.button.classList.add('is-hidden');
-
   newServiceApi.query = e.currentTarget.elements.searchQuery.value;
 
   newServiceApi.resetPage();
@@ -31,16 +29,26 @@ function onSearch(e) {
       Notiflix.Notify.failure(
         'Sorry, there are no images matching your search query. Please try again.'
       );
+    } else {
+      const maxPage = totalHits / hits.length;
+
+      if (maxPage <= newServiceApi.page) {
+        Notiflix.Notify.failure(
+          "We're sorry, but you've reached the end of search results."
+        );
+        Notiflix.Notify.info(`Hooray! We found ${totalHits} images.`);
+        return animalsMarkup(hits);
+      }
+      Notiflix.Notify.info(`Hooray! We found ${totalHits} images.`);
+      refs.button.classList.remove('is-hidden');
+      return animalsMarkup(hits);
     }
-    Notiflix.Notify.info(`Hooray! We found ${totalHits} images.`);
-    refs.button.classList.remove('is-hidden');
-    return animalsMarkup(hits);
   });
 }
 
 function onLoadMoreImg() {
   newServiceApi.fetchAnimals().then(({ hits, totalHits }) => {
-    lightbox.refresh();
+    //  lightbox.refresh();
     const maxPage = totalHits / hits.length;
 
     if (maxPage <= newServiceApi.page) {
@@ -70,22 +78,22 @@ function galleryItem(data) {
         comments,
         downloads,
       }) => {
-        return `<a class="gallery-item" href="${largeImageURL}"><div class="photo-card">
-		  <img src="${webformatURL}" alt="${tags}" loading="lazy" width="320" height="214"/><div class="info">
-	<p class="info-item">
-	  <b>Likes:</b> ${likes}
-	</p>
-	<p class="info-item">
-	  <b>Views:</b> ${views}
-	</p>
-	<p class="info-item">
-	  <b>Comments:</b> ${comments}
-	</p>
-	<p class="info-item">
-	  <b>Downloads:</b> ${downloads}
-	</p>
- </div>
-</div></a>`;
+        return `<a class="gallery-item" href="${largeImageURL}">
+		 <div class="photo-card">
+		  <img src="${webformatURL}" alt="${tags}" loading="lazy" width="320" height="214"/>
+		  <div class="info"><p class="info-item">
+		  <b>Likes:</b> ${likes}
+		</p>
+		<p class="info-item">
+		  <b>Views:</b> ${views}
+		</p>
+		<p class="info-item">
+		  <b>Comments:</b> ${comments}
+		</p>
+		<p class="info-item">
+		  <b>Downloads:</b> ${downloads}
+		</p>
+	 </div></div></a>`;
       }
     )
     .join('');
@@ -96,7 +104,4 @@ function clearGallery() {
   refs.galleryList.innerHTML = '';
 }
 
-let lightbox = new SimpleLightbox('.gallery a', {
-  captionsData: 'alt',
-  captionDelay: 250,
-});
+// let lightbox = new SimpleLightbox('.gallery a');
