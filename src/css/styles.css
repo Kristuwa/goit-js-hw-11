@@ -33,6 +33,7 @@ img {
   display: flex;
   gap: 20px;
   flex-wrap: wrap;
+  margin-bottom: 20px;
 }
 
 .photo-card {
@@ -62,6 +63,8 @@ img {
 
 .load-more {
   display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .gallery-item {

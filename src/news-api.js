@@ -1,22 +1,39 @@
-import Notiflix from 'notiflix';
 import axios from 'axios';
+
+const API_KEY = '30242343-f6d10ec55d07081d5dcce6a52';
+const BASE_URL = 'https://pixabay.com/api';
+
 export class ServiceApi {
   constructor() {
     this.page = 1;
     this.searchQuery = '';
+    this.axios = require('axios');
   }
 
-  fetchAnimals() {
-    const key = '30242343-f6d10ec55d07081d5dcce6a52';
-    const url = `https://pixabay.com/api/?key=${key}&q=${this.searchQuery}&image_type=photo&orientation=horizontal&safesearch=true&per_page=40&page=${this.page}`;
-    return fetch(url)
-      .then(response => response.json())
-      .then(data => {
-        this.incrementPage();
-        console.log(data);
-        return data;
-      });
+  async fetchAnimals() {
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/?key=${API_KEY}&q=${this.searchQuery}&image_type=photo&orientation=horizontal&safesearch=true&per_page=40&page=${this.page}`
+      );
+      const data = response.data;
+      this.incrementPage();
+      console.log(data);
+      return data;
+    } catch (error) {
+      console.error(error);
+    }
   }
+
+  //    {
+  //     const url = ;
+  //     return fetch(url)
+  //       .then(response => response.json())
+  //       .then(data => {
+  //         this.incrementPage();
+  //         console.log(data);
+  //         return data;
+  //       });
+  //   }
 
   incrementPage() {
     this.page += 1;

@@ -6,6 +6,11 @@ import 'simplelightbox/dist/simple-lightbox.min.css';
 import { ServiceApi } from './news-api';
 import Notiflix from 'notiflix';
 
+let lightbox = new SimpleLightbox('.gallery a', {
+  captionsData: 'alt',
+  captionDelay: 250,
+});
+
 const newServiceApi = new ServiceApi();
 
 const refs = {
@@ -20,50 +25,98 @@ refs.button.addEventListener('click', onLoadMoreImg);
 function onSearch(e) {
   e.preventDefault();
   clearGallery();
+  refs.button.classList.add('is-hidden');
 
   newServiceApi.query = e.currentTarget.elements.searchQuery.value;
 
   newServiceApi.resetPage();
-  newServiceApi.fetchAnimals().then(({ hits, totalHits }) => {
-    if (hits.length === 0) {
-      Notiflix.Notify.failure(
-        'Sorry, there are no images matching your search query. Please try again.'
-      );
-    } else {
-      const maxPage = totalHits / hits.length;
 
-      if (maxPage <= newServiceApi.page) {
+  if (newServiceApi.query === '') {
+    return Notiflix.Notify.failure('Please enter valid name.');
+  }
+
+  newServiceApi.resetPage();
+
+  const doFetch = async () => {
+    try {
+      const { hits, totalHits } = await newServiceApi.fetchAnimals();
+
+      if (hits.length === 0) {
         Notiflix.Notify.failure(
-          "We're sorry, but you've reached the end of search results."
+          'Sorry, there are no images matching your search query. Please try again.'
         );
+      } else {
+        const maxPage = totalHits / hits.length;
+        const currentPage = newServiceApi.page - 1;
+        if (maxPage <= currentPage) {
+          Notiflix.Notify.failure(
+            "We're sorry, but you've reached the end of search results."
+          );
+          Notiflix.Notify.info(`Hooray! We found ${totalHits} images.`);
+          return animalsMarkup(hits);
+        }
         Notiflix.Notify.info(`Hooray! We found ${totalHits} images.`);
+        refs.button.classList.remove('is-hidden');
+        refs.button.disabled = false;
         return animalsMarkup(hits);
       }
-      Notiflix.Notify.info(`Hooray! We found ${totalHits} images.`);
-      refs.button.classList.remove('is-hidden');
-      return animalsMarkup(hits);
+    } catch (error) {
+      console.log(error.message);
     }
-  });
+  };
+
+  doFetch();
+  //   newServiceApi.fetchAnimals().then(({ hits, totalHits }) => {
+  //     if (hits.length === 0) {
+  //       Notiflix.Notify.failure(
+  //         'Sorry, there are no images matching your search query. Please try again.'
+  //       );
+  //     } else {
+  //       const maxPage = totalHits / hits.length;
+
+  //       if (maxPage <= newServiceApi.page - 1) {
+  //         Notiflix.Notify.failure(
+  //           "We're sorry, but you've reached the end of search results."
+  //         );
+  //         Notiflix.Notify.info(`Hooray! We found ${totalHits} images.`);
+  //         return animalsMarkup(hits);
+  //       }
+  //       Notiflix.Notify.info(`Hooray! We found ${totalHits} images.`);
+  //       refs.button.classList.remove('is-hidden');
+  //       refs.button.disabled = false;
+  //       return animalsMarkup(hits);
+  //     }
+  //   });
 }
 
 function onLoadMoreImg() {
-  newServiceApi.fetchAnimals().then(({ hits, totalHits }) => {
-    //  lightbox.refresh();
-    const maxPage = totalHits / hits.length;
+  refs.button.disabled = true;
 
-    if (maxPage <= newServiceApi.page) {
-      Notiflix.Notify.failure(
-        "We're sorry, but you've reached the end of search results."
-      );
-      refs.button.classList.add('is-hidden');
-      return;
+  const doFetch = async () => {
+    try {
+      const { hits, totalHits } = await newServiceApi.fetchAnimals();
+      const maxPage = totalHits / hits.length;
+      const currentPage = newServiceApi.page - 1;
+      if (maxPage <= currentPage) {
+        Notiflix.Notify.failure(
+          "We're sorry, but you've reached the end of search results."
+        );
+        refs.button.classList.add('is-hidden');
+        return;
+      }
+      refs.button.disabled = false;
+
+      return animalsMarkup(hits);
+    } catch (error) {
+      console.log(error.message);
     }
-    return animalsMarkup(hits);
-  });
+  };
+  doFetch();
 }
 
 function animalsMarkup(data) {
   refs.galleryList.insertAdjacentHTML('beforeend', galleryItem(data));
+  lightbox.refresh();
 }
 
 function galleryItem(data) {
@@ -103,5 +156,3 @@ function galleryItem(data) {
 function clearGallery() {
   refs.galleryList.innerHTML = '';
 }
-
-// let lightbox = new SimpleLightbox('.gallery a');
