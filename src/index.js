@@ -37,10 +37,9 @@ function onSearch(e) {
 
   newServiceApi.resetPage();
 
-  const doFetch = async () => {
-    try {
-      const { hits, totalHits } = await newServiceApi.fetchAnimals();
-
+  newServiceApi
+    .fetchAnimals()
+    .then(({ hits, totalHits }) => {
       if (hits.length === 0) {
         Notiflix.Notify.failure(
           'Sorry, there are no images matching your search query. Please try again.'
@@ -57,61 +56,39 @@ function onSearch(e) {
         }
         Notiflix.Notify.info(`Hooray! We found ${totalHits} images.`);
         refs.button.classList.remove('is-hidden');
-        refs.button.disabled = false;
+
         return animalsMarkup(hits);
       }
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
-
-  doFetch();
-  //   newServiceApi.fetchAnimals().then(({ hits, totalHits }) => {
-  //     if (hits.length === 0) {
-  //       Notiflix.Notify.failure(
-  //         'Sorry, there are no images matching your search query. Please try again.'
-  //       );
-  //     } else {
-  //       const maxPage = totalHits / hits.length;
-
-  //       if (maxPage <= newServiceApi.page - 1) {
-  //         Notiflix.Notify.failure(
-  //           "We're sorry, but you've reached the end of search results."
-  //         );
-  //         Notiflix.Notify.info(`Hooray! We found ${totalHits} images.`);
-  //         return animalsMarkup(hits);
-  //       }
-  //       Notiflix.Notify.info(`Hooray! We found ${totalHits} images.`);
-  //       refs.button.classList.remove('is-hidden');
-  //       refs.button.disabled = false;
-  //       return animalsMarkup(hits);
-  //     }
-  //   });
+    })
+    .catch(error => console.log(error))
+    .finally(() => {
+      refs.button.disabled = false;
+    });
 }
 
 function onLoadMoreImg() {
   refs.button.disabled = true;
 
-  const doFetch = async () => {
-    try {
-      const { hits, totalHits } = await newServiceApi.fetchAnimals();
-      const maxPage = totalHits / hits.length;
+  newServiceApi
+    .fetchAnimals()
+    .then(({ hits, totalHits }) => {
       const currentPage = newServiceApi.page - 1;
-      if (maxPage <= currentPage) {
+      console.log(currentPage);
+      const endPage = totalHits / (40 * (currentPage - 1) + hits.length);
+
+      console.log(endPage);
+      if (endPage <= 1) {
         Notiflix.Notify.failure(
           "We're sorry, but you've reached the end of search results."
         );
         refs.button.classList.add('is-hidden');
-        return;
       }
-      refs.button.disabled = false;
-
       return animalsMarkup(hits);
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
-  doFetch();
+    })
+    .catch(error => console.log(error))
+    .finally(() => {
+      refs.button.disabled = false;
+    });
 }
 
 function animalsMarkup(data) {
