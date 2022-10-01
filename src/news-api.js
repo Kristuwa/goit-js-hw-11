@@ -6,6 +6,7 @@ const BASE_URL = 'https://pixabay.com/api';
 export class ServiceApi {
   constructor() {
     this.page = 1;
+    this.perPage = 40;
     this.searchQuery = '';
     this.axios = require('axios');
   }
@@ -13,7 +14,7 @@ export class ServiceApi {
   async fetchAnimals() {
     try {
       const response = await axios.get(
-        `${BASE_URL}/?key=${API_KEY}&q=${this.searchQuery}&image_type=photo&orientation=horizontal&safesearch=true&per_page=40&page=${this.page}`
+        `${BASE_URL}/?key=${API_KEY}&q=${this.searchQuery}&image_type=photo&orientation=horizontal&safesearch=true&per_page=${this.perPage}&page=${this.page}`
       );
       const data = response.data;
       this.incrementPage();

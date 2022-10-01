@@ -15,6 +15,7 @@ const newServiceApi = new ServiceApi();
 
 const refs = {
   form: document.querySelector('.search-form'),
+  buttonSubmit: document.querySelector('[data-type="submit"]'),
   button: document.querySelector('.load-more'),
   galleryList: document.querySelector('.gallery'),
 };
@@ -34,9 +35,7 @@ function onSearch(e) {
   if (newServiceApi.query === '') {
     return Notiflix.Notify.failure('Please enter valid name.');
   }
-
-  newServiceApi.resetPage();
-
+  refs.buttonSubmit.disabled = true;
   newServiceApi
     .fetchAnimals()
     .then(({ hits, totalHits }) => {
@@ -63,6 +62,7 @@ function onSearch(e) {
     .catch(error => console.log(error))
     .finally(() => {
       refs.button.disabled = false;
+      refs.buttonSubmit.disabled = false;
     });
 }
 
@@ -73,16 +73,15 @@ function onLoadMoreImg() {
     .fetchAnimals()
     .then(({ hits, totalHits }) => {
       const currentPage = newServiceApi.page - 1;
-      console.log(currentPage);
-      const endPage = totalHits / (40 * (currentPage - 1) + hits.length);
+      const maxPage = totalHits / newServiceApi.perPage;
 
-      console.log(endPage);
-      if (endPage <= 1) {
+      if (maxPage <= currentPage) {
         Notiflix.Notify.failure(
           "We're sorry, but you've reached the end of search results."
         );
         refs.button.classList.add('is-hidden');
       }
+
       return animalsMarkup(hits);
     })
     .catch(error => console.log(error))
@@ -94,6 +93,14 @@ function onLoadMoreImg() {
 function animalsMarkup(data) {
   refs.galleryList.insertAdjacentHTML('beforeend', galleryItem(data));
   lightbox.refresh();
+  const { height: cardHeight } = document
+    .querySelector('.gallery')
+    .firstElementChild.getBoundingClientRect();
+
+  window.scrollBy({
+    top: cardHeight * 2,
+    behavior: 'smooth',
+  });
 }
 
 function galleryItem(data) {
