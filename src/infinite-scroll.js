@@ -12,13 +12,6 @@ let lightbox = new SimpleLightbox('.gallery a', {
   captionDelay: 250,
 });
 
-let infScroll = new InfiniteScroll('.gallery', {
-	path: ,
-  append: '.gallery-item',
-});
-
-const newServiceApi = new ServiceApi();
-
 const refs = {
   form: document.querySelector('.search-form'),
   buttonSubmit: document.querySelector('[data-type="submit"]'),
@@ -28,88 +21,59 @@ const refs = {
 
 refs.form.addEventListener('submit', onSearch);
 // refs.button.addEventListener('click', onLoadMoreImg);
+let infiniteScroll = new InfiniteScroll(refs.galleryList, {
+  path: function () {
+    return `https://pixabay.com/api/?key=30242343-f6d10ec55d07081d5dcce6a52&q=${this.query}&image_type=photo&orientation=horizontal&safesearch=true&per_page=40&page=${this.pageIndex}`;
+  },
+  responseBody: 'json',
+  status: '.scroll-status',
+  history: false,
+});
 
 function onSearch(e) {
   e.preventDefault();
   clearGallery();
-  //   refs.button.classList.add('is-hidden');
 
-  newServiceApi.query = e.currentTarget.elements.searchQuery.value;
+  infiniteScroll.pageIndex = 1;
+  infiniteScroll.page = 1;
+  infiniteScroll.query = e.currentTarget.elements.searchQuery.value;
 
-  newServiceApi.resetPage();
-
-  if (newServiceApi.query === '') {
+  if (infiniteScroll.query === '') {
     return Notiflix.Notify.failure('Please enter valid name.');
   }
-  refs.buttonSubmit.disabled = true;
 
-  infScroll.on('scrollThreshold', function () {
-    newServiceApi
-      .fetchAnimals()
-      .then(({ hits, totalHits }) => {
-        if (hits.length === 0) {
-          Notiflix.Notify.failure(
-            'Sorry, there are no images matching your search query. Please try again.'
-          );
-        } else {
-          const maxPage = totalHits / hits.length;
-          const currentPage = newServiceApi.page - 1;
-          if (maxPage <= currentPage) {
-            Notiflix.Notify.failure(
-              "We're sorry, but you've reached the end of search results."
-            );
-            Notiflix.Notify.info(`Hooray! We found ${totalHits} images.`);
-            return animalsMarkup(hits);
-          }
-          Notiflix.Notify.info(`Hooray! We found ${totalHits} images.`);
-          refs.button.classList.remove('is-hidden');
-
-          return animalsMarkup(hits);
-        }
-      })
-      .catch(error => console.log(error))
-      .finally(() => {
-        // refs.button.disabled = false;
-        refs.buttonSubmit.disabled = false;
-      });
+  infiniteScroll.on('load', function ({ totalHits, hits }, response) {
+    //  if (response.status !== 200 || hits.length === 0) {
+    //    Notiflix.Notify.failure(
+    //      'Sorry, there are no images matching your search query. Please try again.'
+    //    );
+    //    return;
+    //  }
+    return animalsMarkup(hits);
   });
+
+  //   infiniteScroll.loadCount = 0;
+
+  infiniteScroll.loadNextPage().then(function (loaded) {
+    // next page has been loaded
+    let { response, body, items } = loaded;
+    console.log(response.path);
+    console.log(body);
+    console.log(items);
+  });
+
+  //   infiniteScroll.on('last', function () {
+  //     Notiflix.Notify.failure(
+  //       "We're sorry, but you've reached the end of search results."
+  //     );
+  //     infiniteScroll.destroy();
+  //     return;
+  //   });
 }
-
-// function onLoadMoreImg() {
-//   refs.button.disabled = true;
-
-//   newServiceApi
-//     .fetchAnimals()
-//     .then(({ hits, totalHits }) => {
-//       const currentPage = newServiceApi.page - 1;
-//       const maxPage = totalHits / newServiceApi.perPage;
-
-//       if (maxPage <= currentPage) {
-//         Notiflix.Notify.failure(
-//           "We're sorry, but you've reached the end of search results."
-//         );
-//         refs.button.classList.add('is-hidden');
-//       }
-//       return animalsMarkup(hits);
-//     })
-//     .catch(error => console.log(error))
-//     .finally(() => {
-//       refs.button.disabled = false;
-//     });
-// }
 
 function animalsMarkup(data) {
   refs.galleryList.insertAdjacentHTML('beforeend', galleryItem(data));
   lightbox.refresh();
-
-  //   const { height: cardHeight } = document
-  //     .querySelector('.gallery')
-  //     .firstElementChild.getBoundingClientRect();
-
-  //   window.scrollBy({
-  //     top: cardHeight * 2,
-  //     behavior: 'smooth',
-  //   });
 }
 
 function galleryItem(data) {
