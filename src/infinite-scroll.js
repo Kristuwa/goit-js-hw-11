@@ -35,40 +35,45 @@ function onSearch(e) {
   clearGallery();
 
   infiniteScroll.pageIndex = 1;
-  infiniteScroll.page = 1;
   infiniteScroll.query = e.currentTarget.elements.searchQuery.value;
 
   if (infiniteScroll.query === '') {
     return Notiflix.Notify.failure('Please enter valid name.');
   }
 
-  infiniteScroll.on('load', function ({ totalHits, hits }, response) {
-    //  if (response.status !== 200 || hits.length === 0) {
-    //    Notiflix.Notify.failure(
-    //      'Sorry, there are no images matching your search query. Please try again.'
-    //    );
-    //    return;
-    //  }
-    return animalsMarkup(hits);
-  });
+  infiniteScroll.on('load', listener);
 
-  //   infiniteScroll.loadCount = 0;
+  infiniteScroll.loadNextPage();
+}
 
-  infiniteScroll.loadNextPage().then(function (loaded) {
-    // next page has been loaded
-    let { response, body, items } = loaded;
-    console.log(response.path);
-    console.log(body);
-    console.log(items);
-  });
+function listener({ totalHits, hits }, response) {
+  console.log({ totalHits, hits });
 
-  //   infiniteScroll.on('last', function () {
-  //     Notiflix.Notify.failure(
-  //       "We're sorry, but you've reached the end of search results."
-  //     );
-  //     infiniteScroll.destroy();
-  //     return;
-  //   });
+  if (hits.length === 0) {
+    Notiflix.Notify.failure(
+      'Sorry, there are no images matching your search query. Please try again.'
+    );
+    return;
+  }
+
+  const maxPage = totalHits / 40;
+  const currentPage = infiniteScroll.pageIndex - 1;
+  console.log(currentPage);
+  if (currentPage === 1) {
+    Notiflix.Notify.info(`Hooray! We found ${totalHits} images.`);
+  }
+
+  if (maxPage <= currentPage) {
+    animalsMarkup(hits);
+    Notiflix.Notify.failure(
+      "We're sorry, but you've reached the end of search results."
+    );
+
+    infiniteScroll.of('load', listener);
+    return;
+  }
+
+  return animalsMarkup(hits);
 }
 
 function animalsMarkup(data) {
