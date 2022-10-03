@@ -35,7 +35,7 @@ function onSearch(e) {
   clearGallery();
 
   infiniteScroll.pageIndex = 1;
-  infiniteScroll.query = e.currentTarget.elements.searchQuery.value;
+  infiniteScroll.query = e.currentTarget.elements.searchQuery.value.trim();
 
   if (infiniteScroll.query === '') {
     return Notiflix.Notify.failure('Please enter valid name.');

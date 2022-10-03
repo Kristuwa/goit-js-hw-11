@@ -28,7 +28,7 @@ function onSearch(e) {
   clearGallery();
   refs.button.classList.add('is-hidden');
 
-  newServiceApi.query = e.currentTarget.elements.searchQuery.value;
+  newServiceApi.query = e.currentTarget.elements.searchQuery.value.trim();
 
   newServiceApi.resetPage();
 
