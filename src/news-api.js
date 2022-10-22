@@ -11,7 +11,7 @@ export class ServiceApi {
     this.axios = require('axios');
   }
 
-  async fetchAnimals() {
+  async fetchImages() {
     try {
       const response = await axios.get(
         `${BASE_URL}/?key=${API_KEY}&q=${this.searchQuery}&image_type=photo&orientation=horizontal&safesearch=true&per_page=${this.perPage}&page=${this.page}`

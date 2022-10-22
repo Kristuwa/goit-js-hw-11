@@ -37,6 +37,7 @@ img {
 }
 
 .photo-card {
+  height: 300px;
   width: 320px;
   box-shadow: 8px 8px 8px rgba(48, 47, 47, 0.1);
 }
